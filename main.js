@@ -15,6 +15,25 @@ const notes = {
 }
 
 const repeatGuard = new Set()
+const noteKeys = new Set(['c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'a', 'A', 'b', 'B'])
+
+let notesDiv = undefined
+
+function handleKey(key) {
+  if (key === key.toUpperCase()) { // if key is upper case, raise a half note
+    key = key.toLowerCase() + "#"
+  }
+  if (key == "e#") key = "f"
+
+  repeatGuard.add(key)
+  notesDiv.textContent = [...repeatGuard.values()].join(" ")
+  const osc = play(notes[key])
+  document.body.addEventListener('keyup', event => {
+    repeatGuard.delete(key)
+    osc.stop()
+    notesDiv.textContent = [...repeatGuard.values()].join(" ")
+  })
+}
 
 function keyDown(event) {
   const key = event.key
@@ -22,43 +41,12 @@ function keyDown(event) {
   if (repeatGuard.has(key)) {
     return
   }
-
-  const handleKey = (key) => {
-    if (key === key.toUpperCase()) { // if key is upper case
-      key = key.toLowerCase() + "#"
-    }
-    if (key == "e#") key = "f"
-    
-    console.log(`${key.toUpperCase()} Down`)
-    repeatGuard.add(key)
-    const osc = play(notes[key])
-    document.body.addEventListener('keyup', event => {
-      console.log(`${key.toUpperCase()} Up`)
-      repeatGuard.delete(key)
-      osc.stop()
-    })
-  }
-
-  if (key === 'c') handleKey(key)
-  else if (key === 'C') handleKey(key)
-  else if (key === 'd') handleKey(key)
-  else if (key === 'D') handleKey(key)
-  else if (key === 'e') handleKey(key)
-  else if (key === 'E') handleKey(key)
-  else if (key === 'f') handleKey(key)
-  else if (key === 'F') handleKey(key)
-  else if (key === 'g') handleKey(key)
-  else if (key === 'G') handleKey(key)
-  else if (key === 'a') handleKey(key)
-  else if (key === 'A') handleKey(key)
-  else if (key === 'b') handleKey(key)
-  else if (key === 'B') handleKey(key)
-
-
+  if (noteKeys.has(key)) handleKey(key)
 }
 
 function start() {
   document.body.addEventListener('keydown', keyDown)
+  notesDiv = document.getElementById('notes')
 }
 
 function play(freq) {
